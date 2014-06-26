@@ -6,7 +6,7 @@ var helpers = require('./http-helpers');
 
 var routes = {
   '/' : helpers.sendIndex,
-  '/loading.html' : helpers.sendLoading,
+  '/load' : helpers.loadUrl,
   '/styles.css' : helpers.sendStyles
 };
 

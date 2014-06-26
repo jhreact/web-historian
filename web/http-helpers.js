@@ -57,14 +57,10 @@ var sendLoading = function(req, res) {
 var loadUrl = function(req, res) {
   // process postdata
   // debugger;
-  if (req.method === 'POST') {
-    collectData(req, function(err, data) {
-      var submittedUrl = data;
-      // console.log("IN CALLBACK: SUBMITTED URL");
-      // console.log(submittedUrl);
-      sendLoading(req, res);
-    });
-  }
+  collectData(req, function(err, data) {
+    var submittedUrl = data.split('=')[1];
+    sendLoading(req, res);
+  });
   // get url from postdata
   // if url in listofurls
   //    load sitedata from filesystem

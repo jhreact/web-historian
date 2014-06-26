@@ -1,12 +1,6 @@
 var path = require('path');
 var fs = require('fs');
 var archive = require('../helpers/archive-helpers');
-// Yeah, yeah, yeah...this is synchronous
-var index = fs.readFileSync('./web/public/index.html', 'utf8');
-// var index = fs.readFile('./web/public/index.html', 'utf8', function() {});
-// var index = getFile('./web/public/index.html');
-var loading = fs.readFileSync('./web/public/loading.html', 'utf8');
-var styles = fs.readFileSync('./web/public/styles.css', 'utf8');
 var headers = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -14,22 +8,11 @@ var headers = {
   "access-control-max-age": 10, // Seconds.
 };
 
-// var getFile = function(file, cb) {
-//   fs.readFile(file, 'utf8', function(err, data) {
-//     if (err) {
-//       throw err;
-//     }
-//     cb(data);
-//   });
-// };
-
 
 var sendResponse = function(res, data, statusCode, ctype) {
   statusCode = statusCode || 200;
   headers['Content-Type'] = ctype || "text/html";
   res.writeHead(statusCode, headers);
-  // console.log("DATA: ");
-  // console.log(JSON.stringify(data));
   res.end(data);
 };
 
@@ -53,34 +36,36 @@ var sendOptionsResponse = function(req, res) {
   sendResponse(res, null);
 };
 
-var serveAssets = function(res, asset) {
-  // Write some code here that helps serve up your static files!
-  // (Static files are things like html (yours or archived from others...), css, or anything that doesn't change often.)
+var serveAssets = function(res, asset, statusCode, ctype) {
   fs.readFile(asset, 'utf8', function(err, data) {
     if (err) {
       throw err;
     }
-    sendResponse(res, data, 302);
+    sendResponse(res, data, statusCode, ctype);
   });
 };
 
+var sendStyles = function(req, res) {
+  var styles = path.join(archive.paths['siteAssets'], 'styles.css');
+  serveAssets(res, styles, 200, 'text/css');
+};
+
 var sendIndex = function(req, res) {
-  sendResponse(res, index);
+  var index = path.join(archive.paths['siteAssets'], 'index.html');
+  serveAssets(res, index);
 };
 
 var sendLoading = function(req, res) {
-  sendResponse(res, loading);
+  var loading = path.join(archive.paths['siteAssets'], 'loading.html');
+  serveAssets(res, loading);
 };
 
 var loadUrl = function(req, res) {
-  // process postdata
-  // debugger;
   collectData(req, function(err, data) {
     var submittedUrl = data.split('=')[1];
     if (archive.isUrlInList(submittedUrl)) {
-      sendResponse(res, fs.readFileSync(
-        path.join(archive.paths['archivedSites'], submittedUrl)
-      ), 302);
+      var archivedUrl = path.join(archive.paths['archivedSites'], submittedUrl);
+      serveAssets(res, archivedUrl, 302);
     } else {
       fs.appendFile(archive.paths['list'], submittedUrl + '\n', function(err) {
         if (err){
@@ -92,15 +77,7 @@ var loadUrl = function(req, res) {
   });
 };
 
-var sendStyles = function(req, res) {
-  sendResponse(res, styles, 200, 'text/css');
-};
 
-// var postHelper = function(req, res) {
-//   collectData(req, function(err, data) {
-//     sendResponse(res, data, 201);
-//   });
-// };
 
 // As you progress, keep thinking about what helper functions you can put here!
 exports.headers = headers;

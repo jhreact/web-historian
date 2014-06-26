@@ -72,9 +72,14 @@ var loadUrl = function(req, res) {
   // debugger;
   collectData(req, function(err, data) {
     var submittedUrl = data.split('=')[1];
-    sendLoading(req, res);
+    if (archive.isUrlInList(submittedUrl)) {
+      sendResponse(res, fs.readFileSync(
+        path.join(archive.paths['archivedSites'], submittedUrl)
+      ));
+    } else {
+      sendLoading(req, res);
+    }
   });
-  var siteList = archive.readListOfUrls();
   // if url in listofurls
   //    load sitedata from filesystem
   //    respond with sitedata

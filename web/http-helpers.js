@@ -18,7 +18,7 @@ var sendResponse = function(res, data, statusCode) {
   res.writeHead(statusCode, headers);
   // console.log("DATA: ");
   // console.log(JSON.stringify(data));
-  res.end(JSON.stringify(data));
+  res.end(data);
 };
 
 var collectData = function(req, callback) {

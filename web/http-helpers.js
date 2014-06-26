@@ -10,11 +10,11 @@ var headers = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10, // Seconds.
-  'Content-Type': "text/html"
 };
 
-var sendResponse = function(res, data, statusCode) {
+var sendResponse = function(res, data, statusCode, ctype) {
   statusCode = statusCode || 200;
+  headers['Content-Type'] = ctype || "text/html";
   res.writeHead(statusCode, headers);
   // console.log("DATA: ");
   // console.log(JSON.stringify(data));
@@ -27,7 +27,9 @@ var collectData = function(req, callback) {
     data += chunk;
   });
   req.addListener('end', function() {
-    callback(null, JSON.parse(data));
+    if (data) {
+      callback(null, data);
+    }
   });
 };
 
@@ -52,15 +54,35 @@ var sendLoading = function(req, res) {
   sendResponse(res, loading);
 };
 
-var sendStyles = function(req, res) {
-  sendResponse(res, styles);
+var loadUrl = function(req, res) {
+  // process postdata
+  // debugger;
+  if (req.method === 'POST') {
+    collectData(req, function(err, data) {
+      var submittedUrl = data;
+      // console.log("IN CALLBACK: SUBMITTED URL");
+      // console.log(submittedUrl);
+      sendLoading(req, res);
+    });
+  }
+  // get url from postdata
+  // if url in listofurls
+  //    load sitedata from filesystem
+  //    respond with sitedata
+  // else
+  //   add to sites.text
+  //   respond with loading page
 };
 
-var postHelper = function(req, res) {
-  collectData(req, function(err, data) {
-    sendResponse(res, data, 201);
-  });
+var sendStyles = function(req, res) {
+  sendResponse(res, styles, 200, 'text/css');
 };
+
+// var postHelper = function(req, res) {
+//   collectData(req, function(err, data) {
+//     sendResponse(res, data, 201);
+//   });
+// };
 
 // As you progress, keep thinking about what helper functions you can put here!
 exports.headers = headers;
@@ -70,5 +92,6 @@ exports.send404 = send404;
 exports.sendOptionsResponse = sendOptionsResponse;
 exports.serveAssets = serveAssets;
 exports.sendIndex = sendIndex;
+exports.loadUrl = loadUrl;
 exports.sendLoading = sendLoading;
 exports.sendStyles = sendStyles;

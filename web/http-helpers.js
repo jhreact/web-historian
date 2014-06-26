@@ -14,12 +14,12 @@ var headers = {
   "access-control-max-age": 10, // Seconds.
 };
 
-// var getFile = function(file) {
+// var getFile = function(file, cb) {
 //   fs.readFile(file, 'utf8', function(err, data) {
 //     if (err) {
 //       throw err;
 //     }
-//     return data;
+//     cb(data);
 //   });
 // };
 
@@ -56,6 +56,12 @@ var sendOptionsResponse = function(req, res) {
 var serveAssets = function(res, asset) {
   // Write some code here that helps serve up your static files!
   // (Static files are things like html (yours or archived from others...), css, or anything that doesn't change often.)
+  fs.readFile(asset, 'utf8', function(err, data) {
+    if (err) {
+      throw err;
+    }
+    sendResponse(res, data, 302);
+  });
 };
 
 var sendIndex = function(req, res) {
@@ -74,7 +80,7 @@ var loadUrl = function(req, res) {
     if (archive.isUrlInList(submittedUrl)) {
       sendResponse(res, fs.readFileSync(
         path.join(archive.paths['archivedSites'], submittedUrl)
-      ));
+      ), 302);
     } else {
       fs.appendFile(archive.paths['list'], submittedUrl + '\n', function(err) {
         if (err){
@@ -84,9 +90,6 @@ var loadUrl = function(req, res) {
       });
     }
   });
-  // else
-  //   add to sites.text
-  //   respond with loading page
 };
 
 var sendStyles = function(req, res) {

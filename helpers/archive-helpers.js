@@ -26,10 +26,18 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(){
-  return fs.readFileSync(exports.paths['list'], 'utf8').split('\n');
+  var urlFileString = fs.readFileSync(exports.paths['list'], 'utf8')
+  var urlList = urlFileString.split('\n');
+  console.log(urlFileString);
+  console.log(urlList);
+  //return fs.readFileSync(exports.paths['list'], 'utf8').split('\n');
+  return urlList;
 };
 
 exports.isUrlInList = function(url){
+  if (url.charAt(0) === '/') {
+    url = url.substring(1);
+  }
   return _.contains(exports.readListOfUrls(), url);
 };
 

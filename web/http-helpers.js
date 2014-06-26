@@ -1,7 +1,10 @@
 var path = require('path');
 var fs = require('fs');
 var archive = require('../helpers/archive-helpers');
+// Yeah, yeah, yeah...this is synchronous
 var index = fs.readFileSync('./web/public/index.html', 'utf8');
+// var index = fs.readFile('./web/public/index.html', 'utf8', function() {});
+// var index = getFile('./web/public/index.html');
 var loading = fs.readFileSync('./web/public/loading.html', 'utf8');
 var styles = fs.readFileSync('./web/public/styles.css', 'utf8');
 
@@ -11,6 +14,16 @@ var headers = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10, // Seconds.
 };
+
+// var getFile = function(file) {
+//   fs.readFile(file, 'utf8', function(err, data) {
+//     if (err) {
+//       throw err;
+//     }
+//     return data;
+//   });
+// };
+
 
 var sendResponse = function(res, data, statusCode, ctype) {
   statusCode = statusCode || 200;
@@ -61,7 +74,7 @@ var loadUrl = function(req, res) {
     var submittedUrl = data.split('=')[1];
     sendLoading(req, res);
   });
-  // get url from postdata
+  var siteList = archive.readListOfUrls();
   // if url in listofurls
   //    load sitedata from filesystem
   //    respond with sitedata

@@ -7,7 +7,6 @@ var index = fs.readFileSync('./web/public/index.html', 'utf8');
 // var index = getFile('./web/public/index.html');
 var loading = fs.readFileSync('./web/public/loading.html', 'utf8');
 var styles = fs.readFileSync('./web/public/styles.css', 'utf8');
-
 var headers = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -77,12 +76,14 @@ var loadUrl = function(req, res) {
         path.join(archive.paths['archivedSites'], submittedUrl)
       ));
     } else {
-      sendLoading(req, res);
+      fs.appendFile(archive.paths['list'], submittedUrl + '\n', function(err) {
+        if (err){
+          throw err;
+        }
+        sendLoading(req, res);
+      });
     }
   });
-  // if url in listofurls
-  //    load sitedata from filesystem
-  //    respond with sitedata
   // else
   //   add to sites.text
   //   respond with loading page

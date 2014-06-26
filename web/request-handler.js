@@ -11,13 +11,16 @@ var routes = {
 };
 
 exports.handleRequest = function (req, res) {
-  var path = url.parse(req.url).pathname;
+  var urlPath = url.parse(req.url).pathname;
   var method = req.method;
 
   if (method ==='OPTIONS') {
     helpers.sendOptionsResponse(req, res);
-  } else if (path && routes[path]) {
-    routes[path](req, res);
+  } else if (urlPath && routes[urlPath]) {
+    routes[urlPath](req, res);
+  } else if (archive.isUrlInList(urlPath)) {
+    var assetFile = path.join(archive.paths['archivedSites'], urlPath);
+    helpers.serveAssets(res, assetFile);
   } else {
     helpers.send404(req, res);
   }
